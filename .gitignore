@@ -1,0 +1,23 @@
+# Data files
+hotel_data.txt
+
+# Compiled executables
+*.exe
+
+# Object files and build artifacts
+*.o
+*.obj
+*.a
+*.so
+*.dll
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
