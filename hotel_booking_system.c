@@ -79,6 +79,46 @@ int findRoom(int room_no) {
     return -1;
 }
 
+/* ---- Save ---- */
+void saveToFile() {
+    FILE *fp = fopen(FILENAME, "w");
+    if (!fp) return;
+
+    for (int i = 0; i < MAX_ROOMS; i++) {
+        fprintf(fp, "%d|%s|%.0f|%d|%s|%d\n",
+                rooms[i].room_number,
+                rooms[i].type,
+                rooms[i].price,
+                rooms[i].is_booked,
+                rooms[i].guest_name,
+                rooms[i].days);
+    }
+
+    fclose(fp);
+}
+
+/* ---- Load ---- */
+void loadFromFile() {
+    FILE *fp = fopen(FILENAME, "r");
+    char line[200];
+    int i = 0;
+
+    if (!fp) return;
+
+    while (fgets(line, sizeof(line), fp) && i < MAX_ROOMS) {
+        sscanf(line, "%d|%19[^|]|%f|%d|%49[^|]|%d",
+               &rooms[i].room_number,
+               rooms[i].type,
+               &rooms[i].price,
+               &rooms[i].is_booked,
+               rooms[i].guest_name,
+               &rooms[i].days);
+        i++;
+    }
+
+    fclose(fp);
+}
+
 /* ---- Book Room ---- */
 void bookRoom() {
     int room_no, idx, days;
@@ -117,6 +157,8 @@ void bookRoom() {
     strcpy(rooms[idx].guest_name, name);
     rooms[idx].days = days;
 
+    saveToFile();  // AUTO SAVE
+
     printf("\n[SUCCESS] Room booked successfully!\n");
 }
 
@@ -143,6 +185,8 @@ void cancelBooking() {
     rooms[idx].is_booked = 0;
     strcpy(rooms[idx].guest_name, "");
     rooms[idx].days = 0;
+
+    saveToFile();  // AUTO SAVE
 
     printf("[SUCCESS] Booking cancelled!\n");
 }
@@ -222,47 +266,6 @@ void roomSummary() {
     printf("Available Rooms: %d\n", MAX_ROOMS - booked);
 }
 
-/* ---- Save ---- */
-void saveToFile() {
-    FILE *fp = fopen(FILENAME, "w");
-
-    if (!fp) return;
-
-    for (int i = 0; i < MAX_ROOMS; i++) {
-        fprintf(fp, "%d|%s|%.0f|%d|%s|%d\n",
-                rooms[i].room_number,
-                rooms[i].type,
-                rooms[i].price,
-                rooms[i].is_booked,
-                rooms[i].guest_name,
-                rooms[i].days);
-    }
-
-    fclose(fp);
-}
-
-/* ---- Load ---- */
-void loadFromFile() {
-    FILE *fp = fopen(FILENAME, "r");
-    char line[200];
-    int i = 0;
-
-    if (!fp) return;
-
-    while (fgets(line, sizeof(line), fp) && i < MAX_ROOMS) {
-        sscanf(line, "%d|%19[^|]|%f|%d|%49[^|]|%d",
-               &rooms[i].room_number,
-               rooms[i].type,
-               &rooms[i].price,
-               &rooms[i].is_booked,
-               rooms[i].guest_name,
-               &rooms[i].days);
-        i++;
-    }
-
-    fclose(fp);
-}
-
 /* ---- Menu ---- */
 void printMenu() {
     printf("\n");
@@ -303,7 +306,6 @@ int main() {
             case 6: roomSummary(); break;
 
             case 7:
-                saveToFile();
                 printf("\nThank you! Goodbye.\n");
                 return 0;
 
